@@ -2,6 +2,7 @@ const ENS = artifacts.require('./registry/ENSRegistry')
 const PublicResolver = artifacts.require('./resolvers/PublicResolver')
 const BaseRegistrar = artifacts.require('./BaseRegistrarImplementation')
 const ETHRegistrarController = artifacts.require('./ETHRegistrarController')
+const IETHRegistrarController = artifacts.require('./IETHRegistrarController')
 const DummyOracle = artifacts.require('./DummyOracle')
 const StablePriceOracle = artifacts.require('./StablePriceOracle')
 const BulkRenewal = artifacts.require('./BulkRenewal')
@@ -90,6 +91,19 @@ contract('BulkRenewal', function (accounts) {
     }
   })
 
+  it("Should return the interfaceID of a given contract", async function() {
+    // Concatenate function name with its param types
+    const prepareData = e => `${e.name}(${e.inputs.map(e => e.type)})`
+    // Encode function selector (assume web3 is globally available)
+    const encodeSelector = f => ethers.utils.id(f).slice(0,10);
+    // Parse ABI and encode its functions
+    const output = IETHRegistrarController.abi // Place desired contract
+      .filter(e => e.type === "function")
+      .flatMap(e => `${encodeSelector(prepareData(e))}`);
+    // Xor the output values and convert to hex
+    console.log(ethers.utils.hexlify(output.reduce((prev, cur) => prev ^ cur)));
+  });
+
   it('should return the cost of a bulk renewal', async () => {
     assert.equal(
       await bulkRenewal.rentPrice(['test1', 'test2'], 86400),
@@ -114,4 +128,6 @@ contract('BulkRenewal', function (accounts) {
     // Check any excess funds are returned
     assert.equal(await web3.eth.getBalance(bulkRenewal.address), 0)
   })
+
+
 })
