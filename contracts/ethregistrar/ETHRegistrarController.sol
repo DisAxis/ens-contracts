@@ -18,6 +18,7 @@ contract ETHRegistrarController is Ownable, IETHRegistrarController {
     using StringUtils for *;
     using Address for address;
 
+    uint256 public referralFee = 5;
     uint256 public constant MIN_REGISTRATION_DURATION = 28 days;
     bytes32 private constant ETH_NODE =
         0x93cdeb708b7545dc668eb9280176169d1c33cfd8ed6f04690a0bcc88a93fc4ae;
@@ -31,27 +32,6 @@ contract ETHRegistrarController is Ownable, IETHRegistrarController {
 
     mapping(bytes32 => uint256) public commitments;
     mapping(address => uint256) public balances;
-    uint256 public referralFee = 5;
-
-    event NameRegistered(
-        string name,
-        bytes32 indexed label,
-        address indexed owner,
-        uint256 baseCost,
-        uint256 premium,
-        uint256 expires
-    );
-    event NameRenewed(
-        string name,
-        bytes32 indexed label,
-        uint256 cost,
-        uint256 expires,
-        address referrer
-    );
-    event ReferrerAdded(
-        address indexed referrer,
-        uint256 amount
-    );
 
     /**
      * @dev Constructor
@@ -154,6 +134,7 @@ contract ETHRegistrarController is Ownable, IETHRegistrarController {
             "ETHRegistrarController: Referral fee max is 100"
         );
 
+        emit ReferralFeeUpdated(referralFee, _referralFee);
         referralFee = _referralFee;
     }    
 
@@ -397,13 +378,13 @@ contract ETHRegistrarController is Ownable, IETHRegistrarController {
      * @param amount The amount in wei.
      */
     function _setBalance(address referrer, uint256 amount) internal {
-        if (referrer == address(0) || referralFee == 0) {
+        if (referrer == address(0)) {
             balances[owner()] += amount;
         } else {
             uint256 referralFeePrice = (amount / 100) * referralFee;
             balances[referrer] += referralFeePrice;
             balances[owner()] += amount - referralFeePrice;
-            emit ReferrerAdded(referrer, referralFeePrice);
+            emit ReferrerReceived(referrer, referralFeePrice);
         }
     }
 
