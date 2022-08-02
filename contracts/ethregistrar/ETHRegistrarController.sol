@@ -39,8 +39,7 @@ contract ETHRegistrarController is Ownable, IETHRegistrarController {
         address indexed owner,
         uint256 baseCost,
         uint256 premium,
-        uint256 expires,
-        address referrer
+        uint256 expires
     );
     event NameRenewed(
         string name,
@@ -48,6 +47,10 @@ contract ETHRegistrarController is Ownable, IETHRegistrarController {
         uint256 cost,
         uint256 expires,
         address referrer
+    );
+    event ReferrerAdded(
+        address indexed referrer,
+        uint256 amount
     );
 
     /**
@@ -245,7 +248,6 @@ contract ETHRegistrarController is Ownable, IETHRegistrarController {
         _register(
             name,
             owner,
-            referrer,
             duration,
             secret,
             resolver,
@@ -260,7 +262,7 @@ contract ETHRegistrarController is Ownable, IETHRegistrarController {
             payable(msg.sender).transfer(msg.value - totalPrice);
         }
 
-        _setBalance(referrer, totalPrice);
+        _setBalance(referrer, totalPrice);        
     }
 
     /**
@@ -300,7 +302,6 @@ contract ETHRegistrarController is Ownable, IETHRegistrarController {
      * @dev Registers a new ENS domain.
      * @param name The ENS name.
      * @param nameOwner The name owner.
-     * @param referrer The referrer of the owner.
      * @param duration The expiration period of tmie.
      * @param secret The secret hash for validation.
      * @param resolver The resolver.
@@ -312,7 +313,6 @@ contract ETHRegistrarController is Ownable, IETHRegistrarController {
     function _register(
         string calldata name,
         address nameOwner,
-        address referrer,
         uint256 duration,
         bytes32 secret,
         address resolver,
@@ -359,8 +359,7 @@ contract ETHRegistrarController is Ownable, IETHRegistrarController {
             nameOwner,
             price.base,
             price.premium,
-            expires,
-            referrer
+            expires
         );
     }
 
@@ -404,6 +403,7 @@ contract ETHRegistrarController is Ownable, IETHRegistrarController {
             uint256 referralFeePrice = (amount / 100) * referralFee;
             balances[referrer] += referralFeePrice;
             balances[owner()] += amount - referralFeePrice;
+            emit ReferrerAdded(referrer, referralFeePrice);
         }
     }
 
