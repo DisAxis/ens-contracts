@@ -36,9 +36,9 @@ contract StablePriceOracle is IPriceOracle {
         price5Letter = _rentPrices[4];
     }
 
-    function price(
-        string calldata name,
-        uint256 expires,
+    function price(               // TODO why this base price rule based on letter quantity if the ETH registrarController 
+        string calldata name,     // TODO can only set a valid address with more than 3 letters. Discount only applies with
+        uint256 expires,          // TODO 3 or 4 letters
         uint256 duration
     ) external view override returns (IPriceOracle.Price memory) {
         uint256 len = name.strlen();

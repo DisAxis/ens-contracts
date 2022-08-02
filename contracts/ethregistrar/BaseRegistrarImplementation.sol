@@ -17,7 +17,7 @@ contract BaseRegistrarImplementation is ERC721, IBaseRegistrar, Ownable {
     uint256 public constant GRACE_PERIOD = 90 days;
     bytes4 private constant INTERFACE_META_ID =
         bytes4(keccak256("supportsInterface(bytes4)"));
-    bytes4 private constant ERC721_ID =
+    bytes4 private constant ERC721_ID =  // TODO This could use type(ERC721).interfaceId and avoid using so much memory and uncertainty around the versioning
         bytes4(
             keccak256("balanceOf(address)") ^
                 keccak256("ownerOf(uint256)") ^
