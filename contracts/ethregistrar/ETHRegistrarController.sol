@@ -397,7 +397,7 @@ contract ETHRegistrarController is Ownable, IETHRegistrarController {
      * @param amount The amount in wei.
      */
     function _setBalance(address referrer, uint256 amount) internal {
-        if (referrer == address(0)) {
+        if (referrer == address(0) || referralFee == 0) {
             balances[owner()] += amount;
         } else {
             uint256 referralFeePrice = (amount / 100) * referralFee;
