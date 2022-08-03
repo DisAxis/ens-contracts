@@ -125,7 +125,7 @@ contract ETHRegistrarController is Ownable, IETHRegistrarController {
     }
 
     /**
-     * @dev Sets the a new referral fee in percentage.
+     * @dev Sets the new referral fee in percentage.
      * @param _referralFee The fee to be used. From 1 to 100%.
      */
     function setReferralFee(uint256 _referralFee) external onlyOwner {
@@ -143,6 +143,7 @@ contract ETHRegistrarController is Ownable, IETHRegistrarController {
      */
     function withdraw() public {
         uint256 amount = balances[msg.sender];
+        require(amount != 0, "ETHRegistrarController: No balance to withdraw");
         balances[msg.sender] = 0;
         payable(msg.sender).transfer(amount);
     }    
@@ -199,7 +200,7 @@ contract ETHRegistrarController is Ownable, IETHRegistrarController {
      * @param name The ENS name.
      * @param owner The owner to be.
      * @param referrer The referrer of the owner.
-     * @param duration The expiration period of tmie.
+     * @param duration The expiration period of time.
      * @param secret The secret hash for validation.
      * @param resolver The resolver.
      * @param data Extra data.
@@ -373,12 +374,12 @@ contract ETHRegistrarController is Ownable, IETHRegistrarController {
     }
 
     /**
-     * @dev Set the balance after a success registration or renewal.
+     * @dev Set the balance after a successful registration or renewal.
      * @param referrer The referrer of the purchase.
      * @param amount The amount in wei.
      */
     function _setBalance(address referrer, uint256 amount) internal {
-        if (referrer == address(0)) {
+        if (referrer == address(0) || referralFee == 0) {
             balances[owner()] += amount;
         } else {
             uint256 referralFeePrice = (amount / 100) * referralFee;
@@ -387,6 +388,23 @@ contract ETHRegistrarController is Ownable, IETHRegistrarController {
             emit ReferrerReceived(referrer, referralFeePrice);
         }
     }
+    /** TODO  currently the ENS contracts have no withdrawn function, thus storing this for owner() is not necessary as they
+     *        already have implemented back-end methods to transfer the ETH in the contract to other.
+     *        Do they want to implement payment registry in their contracts? It doesn't exist now.
+     *        They might want to consider a future implementation of this feature, receiving more DeFi caracteristics.
+     * @dev Set the balance after a successful registration or renewal.
+     * @param referrer The referrer of the purchase.
+     * @param amount The amount in wei.
+     */
+    function _setReferrerBalance(address referrer, uint256 amount) internal {
+        if (referrer != address(0) && referralFee != 0) {
+            uint256 referralFeePrice = (amount / 100) * referralFee;
+            balances[referrer] += referralFeePrice;
+            emit ReferrerReceived(referrer, referralFeePrice);
+        }
+    }
+
+
 
     /**
      * @dev Set the records by checking if the first few bytes matches 
