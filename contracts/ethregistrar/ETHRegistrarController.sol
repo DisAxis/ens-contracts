@@ -152,7 +152,7 @@ contract ETHRegistrarController is Ownable, IETHRegistrarController {
      * @dev Checks if the name is available.
      * @param name The ENS name.
      * @param owner The owner to be.
-     * @param duration The expiration period of tmie.
+     * @param duration The expiration period.
      * @param secret The secret hash for validation.
      * @param resolver The resolver.
      * @param data Extra data.
@@ -200,7 +200,7 @@ contract ETHRegistrarController is Ownable, IETHRegistrarController {
      * @param name The ENS name.
      * @param owner The owner to be.
      * @param referrer The referrer of the owner.
-     * @param duration The expiration period of time.
+     * @param duration The expiration period.
      * @param secret The secret hash for validation.
      * @param resolver The resolver.
      * @param data Extra data.
@@ -388,26 +388,9 @@ contract ETHRegistrarController is Ownable, IETHRegistrarController {
             emit ReferrerReceived(referrer, referralFeePrice);
         }
     }
-    /** TODO  currently the ENS contracts have no withdrawn function, thus storing this for owner() is not necessary as they
-     *        already have implemented back-end methods to transfer the ETH in the contract to other.
-     *        Do they want to implement payment registry in their contracts? It doesn't exist now.
-     *        They might want to consider a future implementation of this feature, receiving more DeFi caracteristics.
-     * @dev Set the balance after a successful registration or renewal.
-     * @param referrer The referrer of the purchase.
-     * @param amount The amount in wei.
-     */
-    function _setReferrerBalance(address referrer, uint256 amount) internal {
-        if (referrer != address(0) && referralFee != 0) {
-            uint256 referralFeePrice = (amount / 100) * referralFee;
-            balances[referrer] += referralFeePrice;
-            emit ReferrerReceived(referrer, referralFeePrice);
-        }
-    }
-
-
 
     /**
-     * @dev Set the records by checking if the first few bytes matches 
+     * @dev Set the records by checking if the first few bytes 
      *      the hardcoded .eth namehash.
      * @param resolver The resolver to use.
      * @param label The hash of the ENS name.
@@ -433,7 +416,7 @@ contract ETHRegistrarController is Ownable, IETHRegistrarController {
 
     /**
      * @dev Reverse resolution maps from an address back to a name.
-     * @param name The name to be setted.
+     * @param name The name to be settled.
      * @param resolver The resolver address.
      * @param owner The owner of the ENS reverse record.
      */
